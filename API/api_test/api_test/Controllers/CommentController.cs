@@ -1,6 +1,7 @@
 ﻿using api_test.DAO;
 using api_test.EF;
 using api_test.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -22,6 +23,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult getAll(int id_articles)
         {
             var data = CommentDAO.getAll(id_articles);
@@ -40,6 +42,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet("get/{id}")]
+        [Authorize]
         public IActionResult getByID(int id)
         {
             try
@@ -59,8 +62,10 @@ namespace api_test.Controllers
 
         }
 
+       
         [HttpPost]
         [Route("create")]
+        [Authorize]
         public IActionResult Create(CommentModel model)
         {
             Comment cat = new Comment();
@@ -73,7 +78,9 @@ namespace api_test.Controllers
             return Ok(new { result = true, message = "Thêm bình luận thành công" });
         }
 
+       
         [HttpDelete("delete")]
+        [Authorize]
         public IActionResult delete(int id_cmt)
         {
             try
@@ -98,7 +105,9 @@ namespace api_test.Controllers
 
         }
 
+      
         [HttpPut("Edit/{id}")]
+        [Authorize]
         public IActionResult edit(int id, CommentModelEdit model)
         {
             try

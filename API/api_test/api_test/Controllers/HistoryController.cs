@@ -1,6 +1,7 @@
 ﻿using api_test.DAO;
 using api_test.EF;
 using api_test.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -20,6 +21,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult getAll()
         {
             return Ok(new { result = true, data= _db.Histories });
@@ -27,6 +29,7 @@ namespace api_test.Controllers
 
         [HttpPost]
         [Route("Create")]
+        [Authorize]
         public IActionResult create(HistoryModel model)
         {
             try
@@ -50,6 +53,7 @@ namespace api_test.Controllers
         // delete tat ca lich su nguoi dung
 
         [HttpDelete("deleteAllHistoryOfUser/{id}")]
+        [Authorize]
         public IActionResult deleteAll(int id)
         {
             try
@@ -65,7 +69,9 @@ namespace api_test.Controllers
         }
 
         // delete lich su tu chon
+       
         [HttpDelete("delete")]
+        [Authorize]
         public IActionResult deleteHisByID(History his)
         {
             try

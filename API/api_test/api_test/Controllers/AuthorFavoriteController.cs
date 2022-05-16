@@ -1,6 +1,7 @@
 ﻿using api_test.DAO;
 using api_test.EF;
 using api_test.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 
@@ -17,13 +18,16 @@ namespace api_test.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult getAll()
         {
             return Ok(new { result = true, data = _db.AuthorFavorites });
         }
 
+    
         [HttpPost]
         [Route ("create")]
+        [Authorize]
         public IActionResult createAuthorFavorite(AuthorFavoriteModel model)
         {
             AuthorFavorite his = new AuthorFavorite();
@@ -45,7 +49,9 @@ namespace api_test.Controllers
             return Ok(new { result = false, message = "mã số tác giả không đúng" });
         }
 
+      
         [HttpDelete]
+        [Authorize]
         public IActionResult deleteAuthor(int id_use, int id_author)
         {
             try

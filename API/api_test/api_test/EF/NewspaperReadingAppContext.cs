@@ -23,6 +23,7 @@ namespace api_test.EF
         public virtual DbSet<Comment> Comments { get; set; }
         public virtual DbSet<History> Histories { get; set; }
         public virtual DbSet<Qltlbv> Qltlbvs { get; set; }
+        public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -40,8 +41,10 @@ namespace api_test.EF
             modelBuilder.Entity<Article>(entity =>
             {
                 entity.HasKey(e => e.IdArticles);
-                entity.ToTable("Articles");
-                entity.Property(e => e.IdArticles).HasColumnName("id_articles");
+
+                entity.Property(e => e.IdArticles)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id_articles");
 
                 entity.Property(e => e.ContentArticles)
                     .IsRequired()
@@ -53,8 +56,7 @@ namespace api_test.EF
                     .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.IdUser).HasColumnName("id_user");
-                entity.Property(e => e.TrangThaiXoa).HasColumnName("trangThaiXoa")
-                                                    .HasColumnType("int");
+
                 entity.Property(e => e.Image)
                     .HasMaxLength(1000)
                     .IsUnicode(false)
@@ -70,6 +72,10 @@ namespace api_test.EF
                     .HasMaxLength(1000)
                     .HasColumnName("title");
 
+                entity.Property(e => e.TrangThaiXoa)
+                    .HasColumnName("trangThaiXoa")
+                    .HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.Views).HasColumnName("views");
             });
 
@@ -79,7 +85,9 @@ namespace api_test.EF
 
                 entity.ToTable("Author_favorite");
 
-                entity.Property(e => e.IdFavorite).HasColumnName("id_favorite");
+                entity.Property(e => e.IdFavorite)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id_favorite");
 
                 entity.Property(e => e.IdAuthor).HasColumnName("id_author");
 
@@ -104,7 +112,9 @@ namespace api_test.EF
 
                 entity.ToTable("Category");
 
-                entity.Property(e => e.IdCategory).HasColumnName("id_category");
+                entity.Property(e => e.IdCategory)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id_category");
 
                 entity.Property(e => e.Title)
                     .IsRequired()
@@ -118,7 +128,9 @@ namespace api_test.EF
 
                 entity.ToTable("Comment");
 
-                entity.Property(e => e.IdComment).HasColumnName("id_comment");
+                entity.Property(e => e.IdComment)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id_comment");
 
                 entity.Property(e => e.ContentComment)
                     .IsRequired()
@@ -177,7 +189,9 @@ namespace api_test.EF
 
                 entity.ToTable("QLTLBV");
 
-                entity.Property(e => e.IdQl).HasColumnName("id_QL");
+                entity.Property(e => e.IdQl)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id_QL");
 
                 entity.Property(e => e.IdArticles).HasColumnName("id_articles");
 
@@ -196,13 +210,28 @@ namespace api_test.EF
                     .HasConstraintName("FK_QLTLBV_Category");
             });
 
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.ToTable("RefreshToken");
+
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.HasOne(d => d.User)
+                    .WithMany(p => p.RefreshTokens)
+                    .HasForeignKey(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_RefreshToken_User");
+            });
+
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(e => e.IdUser);
 
                 entity.ToTable("User");
 
-                entity.Property(e => e.IdUser).HasColumnName("id_user");
+                entity.Property(e => e.IdUser)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id_user");
 
                 entity.Property(e => e.Avata)
                     .HasMaxLength(1000)
@@ -233,7 +262,8 @@ namespace api_test.EF
                     .HasColumnName("phone");
 
                 entity.Property(e => e.Role).HasColumnName("role");
-                entity.Property(e => e.Status).HasColumnName("status").HasColumnType("int");
+
+                entity.Property(e => e.Status).HasColumnName("status");
 
                 entity.Property(e => e.Username)
                     .IsRequired()

@@ -1,6 +1,7 @@
 ﻿using api_test.DAO;
 using api_test.EF;
 using api_test.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -21,13 +22,17 @@ namespace api_test.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult getAll()
         {
             return Ok(new { result = true, data = _db.Qltlbvs });
         }
 
+        
         [HttpPost]
         [Route("Create")]
+        [Authorize]
+
         public IActionResult create(QLTLBVModel model)
         {
             try
@@ -57,7 +62,10 @@ namespace api_test.Controllers
             }
         }
 
+        
         [HttpDelete]
+        [Authorize]
+
         public IActionResult delete(int id)
         {
             try

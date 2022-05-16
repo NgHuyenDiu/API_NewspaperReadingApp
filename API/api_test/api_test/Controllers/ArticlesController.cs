@@ -1,6 +1,7 @@
 ﻿using api_test.DAO;
 using api_test.EF;
 using api_test.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -21,6 +22,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult getAll()
         {
             var data = ArticlesDAO.getAll();
@@ -45,6 +47,7 @@ namespace api_test.Controllers
 
         [HttpGet]
         [Route("getTopView")]
+        [Authorize]
         public IActionResult getTopView()
         {
             var data = ArticlesDAO.getTopView();
@@ -68,6 +71,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet("get/{id}")]
+        [Authorize]
         public IActionResult getByID(int id)
         {
             try
@@ -87,8 +91,10 @@ namespace api_test.Controllers
 
         }
 
+       
         [HttpPost]
         [Route ("create")]
+        [Authorize]
         public IActionResult create(ArticlesModel model)
         {
             var useTemp = _db.Users.SingleOrDefault(user => user.IdUser == model.IdUser && user.Role == 1);
@@ -110,7 +116,9 @@ namespace api_test.Controllers
             return Ok(new { result = true, message = "User không phải tác giả" });
         }
 
+
         [HttpDelete]
+        [Authorize]
         public IActionResult delete(int id_art)
         {
             try
@@ -136,6 +144,7 @@ namespace api_test.Controllers
         }
 
         [HttpPut("Edit/{id}")]
+        [Authorize]
         public IActionResult edit(int id, ArticlesModelEdit model)
         {
             try

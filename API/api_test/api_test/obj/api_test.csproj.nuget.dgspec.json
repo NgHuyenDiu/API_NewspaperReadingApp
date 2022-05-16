@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\CuoiKy_PTHDV\\api_test\\api_test\\api_test.csproj": {}
+    "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj": {}
   },
   "projects": {
-    "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\CuoiKy_PTHDV\\api_test\\api_test\\api_test.csproj": {
+    "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\CuoiKy_PTHDV\\api_test\\api_test\\api_test.csproj",
+        "projectUniqueName": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj",
         "projectName": "api_test",
-        "projectPath": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\CuoiKy_PTHDV\\api_test\\api_test\\api_test.csproj",
+        "projectPath": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj",
         "packagesPath": "C:\\Users\\Huyen Diu\\.nuget\\packages\\",
-        "outputPath": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\CuoiKy_PTHDV\\api_test\\api_test\\obj\\",
+        "outputPath": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\FinalProject_PTHDV\\API\\api_test\\api_test\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Huyen Diu\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -46,6 +46,10 @@
               "target": "Package",
               "version": "[5.2.8, )"
             },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[5.0.10, )"
+            },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[5.0.10, )"
@@ -58,7 +62,7 @@
             },
             "Microsoft.IdentityModel.Protocols": {
               "target": "Package",
-              "version": "[5.6.0, )"
+              "version": "[6.7.1, )"
             },
             "Newtonsoft.Json": {
               "target": "Package",

@@ -1,10 +1,19 @@
 ﻿using api_test.DAO;
 using api_test.EF;
 using api_test.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+using test.Models;
 
 namespace api_test.Controllers
 {
@@ -13,11 +22,15 @@ namespace api_test.Controllers
     public class UserController : ControllerBase
     {
         private NewspaperReadingAppContext _db;
-        public UserController(NewspaperReadingAppContext db)
+
+        private readonly Appsetting _appSettings;
+        public UserController(NewspaperReadingAppContext db, IOptionsMonitor<Appsetting> optionsMonitor)
         {
             _db = db;
+            _appSettings = optionsMonitor.CurrentValue;
         }
         [HttpGet]
+        [Authorize]
         public IActionResult getAll()
         {
             var data = UserDAO.getAll();
@@ -40,6 +53,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet("get/{id}")]
+        [Authorize]
         public IActionResult getUserByID(int id)
         {
             try
@@ -59,24 +73,220 @@ namespace api_test.Controllers
 
         }
 
-        // dang nhap
-        [Route("logIn")]
-        [HttpPost]
-        public IActionResult logIn(String usename, String password)
+
+        [HttpPost("Login")]
+        
+        public IActionResult validate(LoginModel model)
         {
-            var useTemp = _db.Users.SingleOrDefault(user => user.Username == usename && user.Status == 0);
-            if (useTemp != null)
+            var user = _db.Users.SingleOrDefault(user => user.Username == model.Username && user.Status == 0 && user.Password == model.Password);
+            if (user == null) //không đúng
             {
-                if (useTemp.Password.Equals(password))
-                {
-                    return Ok(new { result = true, message = "Đăng nhập thành công" });
-                }
+                return Ok(new { result = false, message = "Đăng nhập thất bại" });
             }
-            return Ok(new { result = false, message = "Đăng nhập thất bại" });
+
+            //cấp token
+            return Ok(new ApiResponse
+            {
+                Result = true,
+                Message = "Authenticate success",
+                Data = GenerateToken(user)
+            });
+
         }
+
+        private TokenModel GenerateToken(User nguoiDung)
+        {
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+
+            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSettings.SecretKey);
+
+            var tokenDescription = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[] {
+                    new Claim(ClaimTypes.Name, nguoiDung.Name),
+                    new Claim(JwtRegisteredClaimNames.Email, nguoiDung.Email),
+                    new Claim(JwtRegisteredClaimNames.Sub, nguoiDung.Email),
+                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), // id của token
+                    new Claim("UserName", nguoiDung.Username),
+                    new Claim("Id", nguoiDung.IdUser.ToString()),
+
+                    //roles
+                }),
+                Expires = DateTime.UtcNow.AddSeconds(20),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes), SecurityAlgorithms.HmacSha512Signature)
+            };
+
+            var token = jwtTokenHandler.CreateToken(tokenDescription);
+            var accessToken = jwtTokenHandler.WriteToken(token);
+             var refreshToken = GenerateRefreshToken();
+
+             //Lưu database
+             var refreshTokenEntity = new RefreshToken
+             {
+                 Id = Guid.NewGuid(),
+                 JwtId = token.Id,
+                 UserId = nguoiDung.IdUser,
+                 Token = refreshToken,
+                 IsUsed = false,
+                 IsRevoked = false,
+                 IssuedAt = DateTime.UtcNow,
+                 ExpiredAt = DateTime.UtcNow.AddHours(1)
+             };
+            _db.Add(refreshTokenEntity);
+            _db.SaveChanges();
+            
+            return new TokenModel
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
+           
+        }
+
+       
+
+        private string GenerateRefreshToken()
+        {
+            var random = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(random);
+
+                return Convert.ToBase64String(random);
+            }
+        }
+
+        [HttpPost("RefreshToken")]
+        [Authorize]
+        public IActionResult RenewToken(TokenModel model)
+        {
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSettings.SecretKey);
+            var tokenValidateParam = new TokenValidationParameters
+            {
+                //tự cấp token
+                ValidateIssuer = false,
+                ValidateAudience = false,
+
+                //ký vào token
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
+
+                ClockSkew = TimeSpan.Zero,
+
+                ValidateLifetime = false //ko kiểm tra token hết hạn
+            };
+            try
+            {
+                //check 1: AccessToken valid format
+                var tokenInVerification = jwtTokenHandler.ValidateToken(model.AccessToken, tokenValidateParam, out var validatedToken);
+
+                //check 2: Check thuật toán
+                if (validatedToken is JwtSecurityToken jwtSecurityToken)
+                {
+                    var result = jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512, StringComparison.InvariantCultureIgnoreCase);
+                    if (!result)//false
+                    {
+                        return Ok(new ApiResponse
+                        {
+                            Result = false,
+                            Message = "Invalid token"
+                        });
+                    }
+                }
+
+                //check 3: Check accessToken expire?
+                var utcExpireDate = long.Parse(tokenInVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
+
+                var expireDate = ConvertUnixTimeToDateTime(utcExpireDate);
+                if (expireDate > DateTime.UtcNow)
+                {
+                    return Ok(new ApiResponse
+                    {
+                        Result = false,
+                        Message = "Access token has not yet expired"
+                    });
+                }
+
+                //check 4: Check refreshtoken exist in DB
+                var storedToken = _db.RefreshTokens.FirstOrDefault(x => x.Token == model.RefreshToken);
+                if (storedToken == null)
+                {
+                    return Ok(new ApiResponse
+                    {
+                        Result = false,
+                        Message = "Refresh token does not exist"
+                    });
+                }
+
+                //check 5: check refreshToken is used/revoked?
+                if (storedToken.IsUsed)
+                {
+                    return Ok(new ApiResponse
+                    {
+                        Result = false,
+                        Message = "Refresh token has been used"
+                    });
+                }
+                if (storedToken.IsRevoked)
+                {
+                    return Ok(new ApiResponse
+                    {
+                        Result = false,
+                        Message = "Refresh token has been revoked"
+                    });
+                }
+
+                //check 6: AccessToken id == JwtId in RefreshToken
+                var jti = tokenInVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
+                if (storedToken.JwtId != jti)
+                {
+                    return Ok(new ApiResponse
+                    {
+                        Result = false,
+                        Message = "Token doesn't match"
+                    });
+                }
+
+                //Update token is used
+                storedToken.IsRevoked = true;
+                storedToken.IsUsed = true;
+                _db.Update(storedToken);
+                _db.SaveChanges();
+
+                //create new token
+                var user =  _db.Users.SingleOrDefault(us => us.IdUser == storedToken.UserId);
+                var token =  GenerateToken(user);
+
+                return Ok(new ApiResponse
+                {
+                    Result = true,
+                    Message = "Renew token success",
+                    Data = token
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse
+                {
+                    Result = false,
+                    Message = "Something went wrong"
+                });
+            }
+        }
+
+        private DateTime ConvertUnixTimeToDateTime(long utcExpireDate)
+        {
+            var dateTimeInterval = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            dateTimeInterval.AddSeconds(utcExpireDate).ToUniversalTime();
+
+            return dateTimeInterval;
+        }
+
         // them moi user
         [HttpPost]
         [Route("CreateUser")]
+        [Authorize]
         public IActionResult create(UserModel model)
         {
 
@@ -110,6 +320,7 @@ namespace api_test.Controllers
 
         // chỉnh sửa thông tin cá nhân
         [HttpPut("EditAccount/{id}")]
+        [Authorize]
         public IActionResult edit(int id, User userEdit)
         {
             try
@@ -153,6 +364,7 @@ namespace api_test.Controllers
 
         // khoá tài khoản
         [HttpDelete("LockAccount/{id}")]
+        [Authorize]
         public IActionResult delete(int id)
         {
             try
@@ -181,7 +393,7 @@ namespace api_test.Controllers
         }
 
         [HttpPut("OpenAccount/{id}")]
-
+        [Authorize]
         public IActionResult openAcc(int id)
         {
             try
@@ -212,6 +424,7 @@ namespace api_test.Controllers
 
         // lịch sử xem bài viết
         [HttpGet("histoty/{id}")]
+        [Authorize]
         public IActionResult getHistory(int id)
         {
             var data = UserDAO.getListHistory(id);
@@ -229,9 +442,6 @@ namespace api_test.Controllers
 
         }
 
-        //***********AUTHORFAVORITE***********************
-
-       
 
     }
 }

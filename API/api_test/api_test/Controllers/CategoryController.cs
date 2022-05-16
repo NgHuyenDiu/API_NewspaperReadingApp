@@ -1,6 +1,7 @@
 ﻿using api_test.DAO;
 using api_test.EF;
 using api_test.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -22,6 +23,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult getAll()
         {
             return Ok(new { result = true, data = _db.Categories });
@@ -29,6 +31,7 @@ namespace api_test.Controllers
 
         [HttpPost]
         [Route ("create")]
+        [Authorize]
         public IActionResult createAuthorFavorite(CategoryModel model)
         {
             Category cat = new Category();
@@ -47,7 +50,9 @@ namespace api_test.Controllers
             return Ok(new { result = false, message = "Thể loại đã tồn tại" });
         }
 
+       
         [HttpDelete]
+        [Authorize]
         public IActionResult deleteCategory(int id_cat)
         {
             try
@@ -71,8 +76,9 @@ namespace api_test.Controllers
             }
 
         }
-
+        
         [HttpPut("EditCategory/{id}")]
+        [Authorize]
         public IActionResult edit(int id , CategoryModel model)
         {
             try
