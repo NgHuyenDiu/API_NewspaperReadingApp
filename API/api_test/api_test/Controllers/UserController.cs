@@ -297,7 +297,7 @@ namespace api_test.Controllers
         // quên mật khẩu
         [HttpPost]
         [Route("forgotPassword")]
-         [Authorize]
+        [Authorize]
         public IActionResult forgot(String email)
         {
             try
@@ -316,8 +316,8 @@ namespace api_test.Controllers
 
 
                 // gửi mail cho user
-                string smtpUserName = "minhtan0802@gmail.com";
-                string smtpPassword = "wvtpyuhdugdcxjat";
+                string smtpUserName = "huyendiusmilef5@gmail.com";
+                string smtpPassword = "xynignkmcdlfkvdr";
                 string smtpHost = "smtp.gmail.com";
                 int smtpPort = 587;
 
@@ -436,7 +436,7 @@ namespace api_test.Controllers
 
         // thay đổi mật khẩu
         [HttpPut("EditPassword")]
-        //  [Authorize]
+          [Authorize]
         public IActionResult editPassword(String username, String oldPass, String newPass)
         {
             try
