@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj": {}
+    "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\doAn\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj": {}
   },
   "projects": {
-    "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj": {
+    "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\doAn\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj",
+        "projectUniqueName": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\doAn\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj",
         "projectName": "api_test",
-        "projectPath": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj",
+        "projectPath": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\doAn\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj",
         "packagesPath": "C:\\Users\\Huyen Diu\\.nuget\\packages\\",
-        "outputPath": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\FinalProject_PTHDV\\API\\api_test\\api_test\\obj\\",
+        "outputPath": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\doAn\\FinalProject_PTHDV\\API\\api_test\\api_test\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Huyen Diu\\AppData\\Roaming\\NuGet\\NuGet.Config",

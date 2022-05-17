@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "U56GDMFaqQg1AzWqYgjujwytZV4zdccU1RjCReY4uu2NQphkPKbuAnthsuvAB8WBWrPek5UQxCY6+YeVrC6/aQ==",
+  "dgSpecHash": "cSQ9wRI2BzA7ZH8ApihGyWghhHrGNyOEVdiZc0XpPuE0YZi8r8nwyGVWqbgZnLDp05eEYSpktZdRKK2u+raAKA==",
   "success": true,
-  "projectFilePath": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj",
+  "projectFilePath": "D:\\nam4_ky2\\PhatTrienPhanMemHuongDichVu\\doAn\\FinalProject_PTHDV\\API\\api_test\\api_test\\api_test.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Huyen Diu\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\Huyen Diu\\.nuget\\packages\\microsoft.aspnet.webapi.client\\5.2.8\\microsoft.aspnet.webapi.client.5.2.8.nupkg.sha512",

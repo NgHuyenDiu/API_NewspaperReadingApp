@@ -1,5 +1,6 @@
 ﻿using api_test.DAO;
 using api_test.EF;
+using api_test.helper;
 using api_test.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -75,22 +76,34 @@ namespace api_test.Controllers
 
 
         [HttpPost("Login")]
-        
+
         public IActionResult validate(LoginModel model)
         {
-            var user = _db.Users.SingleOrDefault(user => user.Username == model.Username && user.Status == 0 && user.Password == model.Password);
+            var user = _db.Users.SingleOrDefault(user => user.Username == model.Username && user.Status == 0);
             if (user == null) //không đúng
             {
-                return Ok(new { result = false, message = "Đăng nhập thất bại" });
+                return Ok(new { result = false, message = "User không tồn tại hoặc user đã bị khoá tài khoản" });
+            }
+            else
+            {
+                var pass =  PasswordHelper.Decrypt(user.Password);
+                if(pass == model.Password)
+                {
+                    //cấp token
+                    return Ok(new ApiResponse
+                    {
+                        Result = true,
+                        Message = "Authenticate success",
+                        Data = GenerateToken(user)
+                    });
+                }
+                else
+                {
+                    return Ok(new { result = false, message = "Mật khẩu không đúng" });
+                }
             }
 
-            //cấp token
-            return Ok(new ApiResponse
-            {
-                Result = true,
-                Message = "Authenticate success",
-                Data = GenerateToken(user)
-            });
+          
 
         }
 
@@ -118,32 +131,30 @@ namespace api_test.Controllers
 
             var token = jwtTokenHandler.CreateToken(tokenDescription);
             var accessToken = jwtTokenHandler.WriteToken(token);
-             var refreshToken = GenerateRefreshToken();
+            var refreshToken = GenerateRefreshToken();
 
-             //Lưu database
-             var refreshTokenEntity = new RefreshToken
-             {
-                 Id = Guid.NewGuid(),
-                 JwtId = token.Id,
-                 UserId = nguoiDung.IdUser,
-                 Token = refreshToken,
-                 IsUsed = false,
-                 IsRevoked = false,
-                 IssuedAt = DateTime.UtcNow,
-                 ExpiredAt = DateTime.UtcNow.AddHours(1)
-             };
+            //Lưu database
+            var refreshTokenEntity = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                JwtId = token.Id,
+                UserId = nguoiDung.IdUser,
+                Token = refreshToken,
+                IsUsed = false,
+                IsRevoked = false,
+                IssuedAt = DateTime.UtcNow,
+                ExpiredAt = DateTime.UtcNow.AddHours(1)
+            };
             _db.Add(refreshTokenEntity);
             _db.SaveChanges();
-            
+
             return new TokenModel
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
-           
-        }
 
-       
+        }
 
         private string GenerateRefreshToken()
         {
@@ -255,8 +266,8 @@ namespace api_test.Controllers
                 _db.SaveChanges();
 
                 //create new token
-                var user =  _db.Users.SingleOrDefault(us => us.IdUser == storedToken.UserId);
-                var token =  GenerateToken(user);
+                var user = _db.Users.SingleOrDefault(us => us.IdUser == storedToken.UserId);
+                var token = GenerateToken(user);
 
                 return Ok(new ApiResponse
                 {
@@ -283,7 +294,57 @@ namespace api_test.Controllers
             return dateTimeInterval;
         }
 
-        // them moi user
+        // quên mật khẩu
+        [HttpPost]
+        [Route("forgotPassword")]
+         [Authorize]
+        public IActionResult forgot(String email)
+        {
+            try
+            {
+                var useTemp = _db.Users.SingleOrDefault(user => user.Email == email && user.Status == 0);
+
+                if (useTemp == null)
+                {
+                    return Ok(new { result = false, message = "user chưa được đăng ký tài khoản hoặc đã bị khoá tài khoản" });
+                }
+                
+                String newpass =PasswordHelper.CreatePassword(8);
+                String encryptPass = PasswordHelper.Encrypt(newpass);
+                Console.WriteLine("New pass:****" + newpass);
+                useTemp.Password = encryptPass;
+
+
+                // gửi mail cho user
+                string smtpUserName = "minhtan0802@gmail.com";
+                string smtpPassword = "wvtpyuhdugdcxjat";
+                string smtpHost = "smtp.gmail.com";
+                int smtpPort = 587;
+
+                string emailTo = email;
+                string subject = "Lấy lại mật khẩu";
+                string body = string.Format("Mật khẩu mới của bạn là: <b></b><br/><br/>{0} </br>", newpass);
+
+                EmailService service = new EmailService();
+                bool kq = service.Send(smtpUserName, smtpPassword, smtpHost, smtpPort, emailTo, subject, body);
+                if (kq == true)
+                {
+                    _db.SaveChanges();
+                    return Ok(new { result = true, message = "Mật khẩu được chuyển đến mail thành công" });
+                }
+                else
+                {
+                    return Ok(new { result = false, message = "Không gửi được mail" });
+                }
+            }
+            catch (Exception e)
+            {
+                return Ok(new { result = false, data = e.Message });
+            }
+
+
+        }
+
         [HttpPost]
         [Route("CreateUser")]
         [Authorize]
@@ -306,7 +367,7 @@ namespace api_test.Controllers
                     user.Email = model.Email;
                     user.Avata = model.Avata;
                     user.Username = model.Username;
-                    user.Password = model.Password;
+                    user.Password = PasswordHelper.Encrypt(model.Password);
                     user.Role = model.Role;
                     user.Status = 0;
                     _db.Users.Add(user);
@@ -320,8 +381,8 @@ namespace api_test.Controllers
 
         // chỉnh sửa thông tin cá nhân
         [HttpPut("EditAccount/{id}")]
-        [Authorize]
-        public IActionResult edit(int id, User userEdit)
+          [Authorize]
+        public IActionResult edit(int id, UserEdit userEdit)
         {
             try
             {
@@ -331,36 +392,85 @@ namespace api_test.Controllers
                 {
                     return Ok(new { result = false, message = "Không tồn tại user" });
                 }
-                if (id != user.IdUser)
-                {
-                    return Ok(new { result = false, message = "Id user không thể sửa đổi" });
-                }
+
                 // update
-                var useTemp = _db.Users.SingleOrDefault(user => user.Username == userEdit.Username && user.IdUser != userEdit.IdUser);
+                var useTemp = _db.Users.SingleOrDefault(user => user.Username == userEdit.Username && user.IdUser != id);
                 if (useTemp == null)
                 {
-                    user.Name = userEdit.Name;
-                    user.Gender = userEdit.Gender;
-                    user.Phone = userEdit.Phone;
-                    user.Email = userEdit.Email;
-                    user.Avata = userEdit.Avata;
-                    user.Username = userEdit.Username;
-                    user.Password = userEdit.Password;
-                    _db.SaveChanges();
-                    return Ok(new { result = true, message = "Chỉnh sửa thông tin thành công" });
+                    var useEmail = _db.Users.SingleOrDefault(user => user.Email == userEdit.Email && user.IdUser != id);
+                    if (useEmail == null)
+                    {
+                        var usePhone = _db.Users.SingleOrDefault(user => user.Phone == userEdit.Phone && user.IdUser != id);
+                        if (usePhone == null)
+                        {
+                            user.Name = userEdit.Name;
+                            user.Gender = userEdit.Gender;
+                            user.Phone = userEdit.Phone;
+                            user.Email = userEdit.Email;
+                            user.Avata = userEdit.Avata;
+                            user.Username = userEdit.Username;
+
+                            _db.SaveChanges();
+                            return Ok(new { result = true, message = "Chỉnh sửa thông tin thành công" });
+                        }
+                        else
+                        {
+                            return Ok(new { result = false, message = "Số điện thoại đã tồn tại " });
+                        }
+                    }
+                    else
+                    {
+                        return Ok(new { result = false, message = "Email đã tồn tại " });
+                    }
                 }
                 else
                 {
-                    return Ok(new { result = false, message = "Username đã tồn tại" });
+                    return Ok(new { result = false, message = "Username đã tồn tại " });
                 }
-
-
             }
             catch
             {
                 return Ok(new { result = false, message = "Chỉnh sửa thất bại" });
             }
         }
+
+        // thay đổi mật khẩu
+        [HttpPut("EditPassword")]
+        //  [Authorize]
+        public IActionResult editPassword(String username, String oldPass, String newPass)
+        {
+            try
+            {
+                // linkQ[Object] query
+               
+                var user = _db.Users.SingleOrDefault(user => user.Username == username );
+                if (user == null)
+                {
+                    return Ok(new { result = false, message = "User không tồn tại" });
+                }
+                else
+                {
+                    var pass = PasswordHelper.Decrypt(user.Password);
+                    if (pass == oldPass)
+                    {
+                        // update
+                        user.Password = PasswordHelper.Encrypt(newPass);
+                        _db.SaveChanges();
+                        return Ok(new { result = true, message = "Chỉnh sửa mật khẩu thành công" });
+                    }
+                    else
+                    {
+                        return Ok(new { result = false, message = "Mật khẩu cũ không đúng" });
+                    }
+                }
+               
+            }
+            catch(Exception ex)
+            {
+                return Ok(new { result = false, message = ex.Message });
+            }
+        }
+
 
         // khoá tài khoản
         [HttpDelete("LockAccount/{id}")]
@@ -375,7 +485,7 @@ namespace api_test.Controllers
                 {
                     return Ok(new { result = false, message = "Không tìm thấy tài khoản người dùng" });
                 }
-                if(user.Status == 1)
+                if (user.Status == 1)
                 {
                     return Ok(new { result = false, message = "Tài khoản người dùng đã khoá" });
                 }
@@ -392,6 +502,9 @@ namespace api_test.Controllers
             }
         }
 
+
+
+
         [HttpPut("OpenAccount/{id}")]
         [Authorize]
         public IActionResult openAcc(int id)
@@ -399,12 +512,12 @@ namespace api_test.Controllers
             try
             {
                 // linkQ[Object] query
-                var user = _db.Users.SingleOrDefault(user => user.IdUser == id );
+                var user = _db.Users.SingleOrDefault(user => user.IdUser == id);
                 if (user == null)
                 {
                     return Ok(new { result = false, message = "Không tìm thấy tài khoản người dùng" });
                 }
-                if(user.Status == 0)
+                if (user.Status == 0)
                 {
                     return Ok(new { result = false, message = "Tài khoản người dùng đang hoạt động" });
                 }
