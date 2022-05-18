@@ -129,12 +129,16 @@ namespace api_test.Controllers
                 {
                     return Ok(new { result = false, message = "Không tìm thấy bài viết" });
                 }
+                if(art.TrangThaiXoa == 1)
+                {
+                    return Ok(new { result = true, message = "Bài viết đã xoá khỏi hệ thống" });
+                }
 
                 // delete
 
                 art.TrangThaiXoa = 1;
                 _db.SaveChanges();
-                return Ok(new { result = true, message = "Đánh dấu Xoá bài viết thành công" });
+                return Ok(new { result = true, message = " Xoá bài viết thành công" });
             }
             catch
             {
@@ -155,9 +159,9 @@ namespace api_test.Controllers
                 {
                     return Ok(new { result = false, message = "Không tìm thấy thông tin bài viết" });
                 }
-                if (id != art.IdArticles)
+                if (art.TrangThaiXoa ==1)
                 {
-                    return Ok(new { result = false, message = "Id bài viết không thể sửa đổi" });
+                    return Ok(new { result = false, message = "Bài viết không tồn tại trong hệ thống" });
                 }
                 // update
 

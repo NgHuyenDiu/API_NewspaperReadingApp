@@ -125,7 +125,7 @@ namespace api_test.Controllers
 
                     //roles
                 }),
-                Expires = DateTime.UtcNow.AddSeconds(20),
+                Expires = DateTime.UtcNow.AddHours(1), //.AddSeconds(20),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes), SecurityAlgorithms.HmacSha512Signature)
             };
 
@@ -297,7 +297,7 @@ namespace api_test.Controllers
         // quên mật khẩu
         [HttpPost]
         [Route("forgotPassword")]
-        [Authorize]
+       // [Authorize]
         public IActionResult forgot(String email)
         {
             try
