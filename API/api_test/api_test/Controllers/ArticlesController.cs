@@ -91,7 +91,31 @@ namespace api_test.Controllers
 
         }
 
-       
+        [HttpGet("pageList")]
+        [Authorize]
+        public IActionResult getPageList(int page, int pagesize)
+        {
+            var data = ArticlesDAO.getPageList(page, pagesize);
+            List<Article> list = new List<Article>();
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                Article art = new Article();
+                art.IdArticles = Int32.Parse(data.Rows[i]["id_articles"].ToString());
+                art.Title = data.Rows[i]["title"].ToString();
+                art.ContentArticles = data.Rows[i]["content_articles"].ToString();
+                art.IdUser = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                art.Status = data.Rows[i]["status"].ToString();
+                art.DateSubmitted = Convert.ToDateTime(data.Rows[i]["date_submitted"].ToString());
+                art.Image = data.Rows[i]["image"].ToString();
+                art.Views = Int32.Parse(data.Rows[i]["views"].ToString());
+                art.TrangThaiXoa = Int32.Parse(data.Rows[i]["trangThaiXoa"].ToString());
+
+                list.Add(art);
+            }
+            return Ok(new { result = true, data = list });
+        }
+
+
         [HttpPost]
         [Route ("create")]
         [Authorize]

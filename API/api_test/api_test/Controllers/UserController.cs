@@ -53,6 +53,29 @@ namespace api_test.Controllers
             return Ok(new { result = true, data = list });
         }
 
+        [HttpGet("pageList")]
+        [Authorize]
+        public IActionResult getPageList(int page, int pagesize)
+        {
+            var data = UserDAO.getPageList(page, pagesize);
+            List<User> list = new List<User>();
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                User u = new User();
+                u.IdUser = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                u.Name = data.Rows[i]["name"].ToString();
+                u.Gender = Int32.Parse(data.Rows[i]["gender"].ToString());
+                u.Phone = data.Rows[i]["phone"].ToString();
+                u.Email = data.Rows[i]["email"].ToString();
+                u.Avata = data.Rows[i]["avata"].ToString();
+                u.Username = data.Rows[i]["username"].ToString();
+                u.Password = data.Rows[i]["password"].ToString();
+                u.Role = Int32.Parse(data.Rows[i]["role"].ToString());
+                list.Add(u);
+            }
+            return Ok(new { result = true, data = list });
+        }
+
         [HttpGet("get/{id}")]
         [Authorize]
         public IActionResult getUserByID(int id)
@@ -382,7 +405,8 @@ namespace api_test.Controllers
         // chỉnh sửa thông tin cá nhân
         [HttpPut("EditAccount/{id}")]
           [Authorize]
-        public IActionResult edit(int id, UserEdit userEdit)
+        public IActionResult edit(int id, UserEdit userEdit
+            )
         {
             try
             {

@@ -10,9 +10,6 @@ namespace api_test.DAO
 {
     public class UserDAO
     {
-
-
-
         public static int taoMa()
         {
             int maxMa = 0;
@@ -38,6 +35,25 @@ namespace api_test.DAO
         public static DataTable getAll()
         {
             String lenh = String.Format("EXEC getListUser ");
+            DataTable dt = new DataTable();
+            SqlConnection cn = new SqlConnection(SqlHelper.connstr);
+            try
+            {
+                SqlCommand cmd = new SqlCommand(lenh, cn);
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            cn.Close();
+            return dt;
+        }
+
+        public static DataTable getPageList(int page, int pagesize)
+        {
+            String lenh = String.Format("EXEC getListUserPageSize {0},{1}", page, pagesize);
             DataTable dt = new DataTable();
             SqlConnection cn = new SqlConnection(SqlHelper.connstr);
             try
