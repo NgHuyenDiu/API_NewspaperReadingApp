@@ -18,7 +18,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        
         public IActionResult getAll()
         {
             return Ok(new { result = true, data = _db.AuthorFavorites });

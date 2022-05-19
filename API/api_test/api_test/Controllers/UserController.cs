@@ -31,7 +31,7 @@ namespace api_test.Controllers
             _appSettings = optionsMonitor.CurrentValue;
         }
         [HttpGet]
-        [Authorize]
+      
         public IActionResult getAll()
         {
             var data = UserDAO.getAll();
@@ -54,7 +54,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet("pageList")]
-        [Authorize]
+        
         public IActionResult getPageList(int page, int pagesize)
         {
             var data = UserDAO.getPageList(page, pagesize);
@@ -77,7 +77,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet("get/{id}")]
-        [Authorize]
+        
         public IActionResult getUserByID(int id)
         {
             try

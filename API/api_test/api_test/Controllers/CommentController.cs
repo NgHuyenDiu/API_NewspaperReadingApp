@@ -23,7 +23,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+      
         public IActionResult getAll(int id_articles)
         {
             var data = CommentDAO.getAll(id_articles);
@@ -42,7 +42,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet("get/{id}")]
-        [Authorize]
+       
         public IActionResult getByID(int id)
         {
             try

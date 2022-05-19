@@ -22,7 +22,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+       
         public IActionResult getAll()
         {
             var data = ArticlesDAO.getAll();
@@ -47,7 +47,7 @@ namespace api_test.Controllers
 
         [HttpGet]
         [Route("getTopView")]
-        [Authorize]
+       
         public IActionResult getTopView()
         {
             var data = ArticlesDAO.getTopView();
@@ -71,7 +71,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet("get/{id}")]
-        [Authorize]
+      
         public IActionResult getByID(int id)
         {
             try
@@ -92,7 +92,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet("pageList")]
-        [Authorize]
+       
         public IActionResult getPageList(int page, int pagesize)
         {
             var data = ArticlesDAO.getPageList(page, pagesize);
