@@ -88,7 +88,15 @@ namespace api_test.Controllers
                 {
                     return Ok(new { result = false, message = "Không tồn tại user" });
                 }
-                return Ok(new { result = true, data = user });
+                UserView userView = new UserView();
+                userView.Name = user.Name;
+                userView.Phone = user.Phone;
+                userView.Email = user.Email;
+                userView.Avata = user.Avata;
+                userView.Gender = user.Gender;
+                userView.Username = user.Username;
+
+                return Ok(new { result = true, data = userView });
             }
             catch
             {
@@ -109,15 +117,24 @@ namespace api_test.Controllers
             }
             else
             {
+                UserView userView = new UserView();
+                userView.Name = user.Name;
+                userView.Phone = user.Phone;
+                userView.Email = user.Email;
+                userView.Avata = user.Avata;
+                userView.Gender = user.Gender;
+                userView.Username = user.Username;
+
                 var pass =  PasswordHelper.Decrypt(user.Password);
                 if(pass == model.Password)
                 {
                     //cấp token
-                    return Ok(new ApiResponse
+                    return Ok(new 
                     {
                         Result = true,
                         Message = "Authenticate success",
-                        Data = GenerateToken(user)
+                        DataToken = GenerateToken(user),
+                        DataUser = userView
                     });
                 }
                 else
@@ -224,7 +241,7 @@ namespace api_test.Controllers
                         return Ok(new ApiResponse
                         {
                             Result = false,
-                            Message = "Invalid token"
+                            Message = "Token không hợp lệ"
                         });
                     }
                 }
@@ -238,7 +255,7 @@ namespace api_test.Controllers
                     return Ok(new ApiResponse
                     {
                         Result = false,
-                        Message = "Access token has not yet expired"
+                        Message = "Token chưa hết hạn"
                     });
                 }
 
@@ -249,7 +266,7 @@ namespace api_test.Controllers
                     return Ok(new ApiResponse
                     {
                         Result = false,
-                        Message = "Refresh token does not exist"
+                        Message = "Refresh token không tồn tại"
                     });
                 }
 
@@ -259,7 +276,7 @@ namespace api_test.Controllers
                     return Ok(new ApiResponse
                     {
                         Result = false,
-                        Message = "Refresh token has been used"
+                        Message = "Refresh token đã được sử dụng"
                     });
                 }
                 if (storedToken.IsRevoked)
@@ -267,7 +284,7 @@ namespace api_test.Controllers
                     return Ok(new ApiResponse
                     {
                         Result = false,
-                        Message = "Refresh token has been revoked"
+                        Message = "Token đã bị thu hồi"
                     });
                 }
 
@@ -278,7 +295,7 @@ namespace api_test.Controllers
                     return Ok(new ApiResponse
                     {
                         Result = false,
-                        Message = "Token doesn't match"
+                        Message = "Token chưa tồn tại"
                     });
                 }
 
@@ -295,7 +312,7 @@ namespace api_test.Controllers
                 return Ok(new ApiResponse
                 {
                     Result = true,
-                    Message = "Renew token success",
+                    Message = "Token mới ",
                     Data = token
                 });
             }
@@ -304,7 +321,7 @@ namespace api_test.Controllers
                 return BadRequest(new ApiResponse
                 {
                     Result = false,
-                    Message = "Something went wrong"
+                    Message = "Đã xảy ra lỗi"
                 });
             }
         }

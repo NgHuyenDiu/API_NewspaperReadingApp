@@ -30,4 +30,15 @@ namespace api_test.Model
     public string Avata { get; set; }
     public string Username { get; set; }
     }
+
+    public class UserView
+    {
+        [JsonProperty("user")]
+        public string Name { get; set; }
+        public int? Gender { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public string Avata { get; set; }
+        public string Username { get; set; }
+    }
 }
