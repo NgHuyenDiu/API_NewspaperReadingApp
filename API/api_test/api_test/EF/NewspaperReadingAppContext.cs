@@ -23,7 +23,6 @@ namespace api_test.EF
         public virtual DbSet<Comment> Comments { get; set; }
         public virtual DbSet<History> Histories { get; set; }
         public virtual DbSet<Qltlbv> Qltlbvs { get; set; }
-        public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -64,7 +63,7 @@ namespace api_test.EF
 
                 entity.Property(e => e.Status)
                     .IsRequired()
-                    .HasMaxLength(10)
+                    .HasMaxLength(90)
                     .HasColumnName("status");
 
                 entity.Property(e => e.Title)
@@ -208,19 +207,6 @@ namespace api_test.EF
                     .HasForeignKey(d => d.IdCategory)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_QLTLBV_Category");
-            });
-
-            modelBuilder.Entity<RefreshToken>(entity =>
-            {
-                entity.ToTable("RefreshToken");
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.RefreshTokens)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_RefreshToken_User");
             });
 
             modelBuilder.Entity<User>(entity =>

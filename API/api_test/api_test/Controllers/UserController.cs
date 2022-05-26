@@ -147,7 +147,7 @@ namespace api_test.Controllers
 
         }
 
-        private TokenModel GenerateToken(User nguoiDung)
+        private String GenerateToken(User nguoiDung)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
 
@@ -171,168 +171,12 @@ namespace api_test.Controllers
 
             var token = jwtTokenHandler.CreateToken(tokenDescription);
             var accessToken = jwtTokenHandler.WriteToken(token);
-            var refreshToken = GenerateRefreshToken();
-
-            //Lưu database
-            var refreshTokenEntity = new RefreshToken
-            {
-                Id = Guid.NewGuid(),
-                JwtId = token.Id,
-                UserId = nguoiDung.IdUser,
-                Token = refreshToken,
-                IsUsed = false,
-                IsRevoked = false,
-                IssuedAt = DateTime.UtcNow,
-                ExpiredAt = DateTime.UtcNow.AddHours(1)
-            };
-            _db.Add(refreshTokenEntity);
-            _db.SaveChanges();
-
-            return new TokenModel
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
+            return accessToken;
+       
 
         }
 
-        private string GenerateRefreshToken()
-        {
-            var random = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(random);
-
-                return Convert.ToBase64String(random);
-            }
-        }
-
-        [HttpPost("RefreshToken")]
-        [Authorize]
-        public IActionResult RenewToken(TokenModel model)
-        {
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
-            var secretKeyBytes = Encoding.UTF8.GetBytes(_appSettings.SecretKey);
-            var tokenValidateParam = new TokenValidationParameters
-            {
-                //tự cấp token
-                ValidateIssuer = false,
-                ValidateAudience = false,
-
-                //ký vào token
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
-
-                ClockSkew = TimeSpan.Zero,
-
-                ValidateLifetime = false //ko kiểm tra token hết hạn
-            };
-            try
-            {
-                //check 1: AccessToken valid format
-                var tokenInVerification = jwtTokenHandler.ValidateToken(model.AccessToken, tokenValidateParam, out var validatedToken);
-
-                //check 2: Check thuật toán
-                if (validatedToken is JwtSecurityToken jwtSecurityToken)
-                {
-                    var result = jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512, StringComparison.InvariantCultureIgnoreCase);
-                    if (!result)//false
-                    {
-                        return Ok(new ApiResponse
-                        {
-                            Result = false,
-                            Message = "Token không hợp lệ"
-                        });
-                    }
-                }
-
-                //check 3: Check accessToken expire?
-                var utcExpireDate = long.Parse(tokenInVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
-
-                var expireDate = ConvertUnixTimeToDateTime(utcExpireDate);
-                if (expireDate > DateTime.UtcNow)
-                {
-                    return Ok(new ApiResponse
-                    {
-                        Result = false,
-                        Message = "Token chưa hết hạn"
-                    });
-                }
-
-                //check 4: Check refreshtoken exist in DB
-                var storedToken = _db.RefreshTokens.FirstOrDefault(x => x.Token == model.RefreshToken);
-                if (storedToken == null)
-                {
-                    return Ok(new ApiResponse
-                    {
-                        Result = false,
-                        Message = "Refresh token không tồn tại"
-                    });
-                }
-
-                //check 5: check refreshToken is used/revoked?
-                if (storedToken.IsUsed)
-                {
-                    return Ok(new ApiResponse
-                    {
-                        Result = false,
-                        Message = "Refresh token đã được sử dụng"
-                    });
-                }
-                if (storedToken.IsRevoked)
-                {
-                    return Ok(new ApiResponse
-                    {
-                        Result = false,
-                        Message = "Token đã bị thu hồi"
-                    });
-                }
-
-                //check 6: AccessToken id == JwtId in RefreshToken
-                var jti = tokenInVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Jti).Value;
-                if (storedToken.JwtId != jti)
-                {
-                    return Ok(new ApiResponse
-                    {
-                        Result = false,
-                        Message = "Token chưa tồn tại"
-                    });
-                }
-
-                //Update token is used
-                storedToken.IsRevoked = true;
-                storedToken.IsUsed = true;
-                _db.Update(storedToken);
-                _db.SaveChanges();
-
-                //create new token
-                var user = _db.Users.SingleOrDefault(us => us.IdUser == storedToken.UserId);
-                var token = GenerateToken(user);
-
-                return Ok(new ApiResponse
-                {
-                    Result = true,
-                    Message = "Token mới ",
-                    Data = token
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ApiResponse
-                {
-                    Result = false,
-                    Message = "Đã xảy ra lỗi"
-                });
-            }
-        }
-
-        private DateTime ConvertUnixTimeToDateTime(long utcExpireDate)
-        {
-            var dateTimeInterval = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            dateTimeInterval.AddSeconds(utcExpireDate).ToUniversalTime();
-
-            return dateTimeInterval;
-        }
+  
 
         // quên mật khẩu
         [HttpPost]
