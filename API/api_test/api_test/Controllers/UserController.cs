@@ -18,6 +18,7 @@ using test.Models;
 
 namespace api_test.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -124,7 +125,7 @@ namespace api_test.Controllers
                 userView.Avata = user.Avata;
                 userView.Gender = user.Gender;
                 userView.Username = user.Username;
-
+                userView.Role = user.Role;
                 var pass =  PasswordHelper.Decrypt(user.Password);
                 if(pass == model.Password)
                 {
