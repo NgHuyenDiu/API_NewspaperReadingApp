@@ -65,6 +65,17 @@ namespace api_test
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "api_test", Version = "v1" });
                 c.ResolveConflictingActions(apiDescriptions => apiDescriptions.First()); //This line
             });
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:3000")
+                                            .AllowAnyHeader()
+                                            .AllowAnyMethod();
+                    });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -86,6 +97,8 @@ namespace api_test
 
             app.UseAuthorization();
 
+            app.UseCors();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -94,6 +107,8 @@ namespace api_test
             {
                 c.SwaggerEndpoint("./v1/swagger.json", "My API V1"); //originally "./swagger/v1/swagger.json"
             });
+
+            
         }
     }
 }
