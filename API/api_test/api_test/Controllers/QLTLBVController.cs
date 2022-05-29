@@ -54,7 +54,7 @@ namespace api_test.Controllers
                         return Ok(new { result = true, message = "Thêm quản lý thể loại bài viết thành công" });
                     }
                 }
-                return Ok(new { result = true, message="Thêm quản lý thể loại bài viết thất bại" });
+                return Ok(new { result = false, message="Thêm quản lý thể loại bài viết thất bại" });
             }
             catch (Exception e)
             {

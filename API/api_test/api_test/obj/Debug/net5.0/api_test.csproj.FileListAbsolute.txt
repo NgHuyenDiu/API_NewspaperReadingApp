@@ -298,3 +298,4 @@ D:\PTPMHDV\project\API\FinalProject_PTHDV\API\api_test\api_test\obj\Debug\net5.0
 D:\PTPMHDV\project\API\FinalProject_PTHDV\API\api_test\api_test\obj\Debug\net5.0\api_test.genruntimeconfig.cache
 D:\PTPMHDV\project\API\FinalProject_PTHDV\API\api_test\api_test\obj\Debug\net5.0\ref\api_test.dll
 D:\PTPMHDV\project\API\FinalProject_PTHDV\API\api_test\api_test\bin\Debug\net5.0\libman.json
+D:\nam4_ky2\PhatTrienPhanMemHuongDichVu\doAn\FinalProject_PTHDV\API\api_test\api_test\bin\Debug\net5.0\libman.json

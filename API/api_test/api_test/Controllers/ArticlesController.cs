@@ -137,7 +137,7 @@ namespace api_test.Controllers
                 _db.SaveChanges();
                 return Ok(new { result = true, message = "Thêm bài viết thành công" });
             }
-            return Ok(new { result = true, message = "User không phải tác giả" });
+            return Ok(new { result = false, message = "User không phải tác giả" });
         }
 
 
