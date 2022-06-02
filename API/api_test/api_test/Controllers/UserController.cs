@@ -230,7 +230,7 @@ namespace api_test.Controllers
 
         [HttpPost]
         [Route("CreateUser")]
-        [Authorize]
+       // [Authorize]
         public IActionResult create(UserModel model)
         {
 
