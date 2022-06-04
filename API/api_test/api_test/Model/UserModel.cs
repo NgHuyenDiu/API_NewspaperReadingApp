@@ -34,6 +34,7 @@ namespace api_test.Model
     public class UserView
     {
         [JsonProperty("user")]
+        public int IdUser { get; set; }
         public string Name { get; set; }
         public int? Gender { get; set; }
         public string Phone { get; set; }
