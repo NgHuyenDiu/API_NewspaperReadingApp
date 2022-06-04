@@ -117,6 +117,7 @@ namespace api_test.Controllers
             else
             {
                 UserView userView = new UserView();
+                userView.IdUser = user.IdUser;
                 userView.Name = user.Name;
                 userView.Phone = user.Phone;
                 userView.Email = user.Email;
