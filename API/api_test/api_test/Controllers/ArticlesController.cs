@@ -82,11 +82,14 @@ namespace api_test.Controllers
                 {
                     return Ok(new { result = false, message = "Không tìm thấy bài viết" });
                 }
+                dt.Views = dt.Views + 1;
+                _db.SaveChanges();
                 return Ok(new { result = true, data = dt });
             }
-            catch
+            catch (Exception a)
             {
-                return Ok(new { result = false, message = "Truy xuất thông tin bài viết theo id thất bại" });
+
+                return Ok(new { result = false, message = a });//"Truy xuất thông tin bài viết theo id thất bại" });
             }
 
         }
