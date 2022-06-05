@@ -71,15 +71,15 @@ namespace api_test.Controllers
             try
             {
                 // linkQ[Object] query
-                var cate = _db.Qltlbvs.SingleOrDefault(cat => cat.IdQl == id);
-                if (cate == null)
+                var ql = _db.Qltlbvs.SingleOrDefault(cat => cat.IdQl == id);
+                if (ql == null)
                 {
                     return Ok(new { result = false, message = "Không tìm thấy thông tin quản lý" });
                 }
 
                 // delete
 
-                _db.Qltlbvs.Remove(cate);
+                _db.Qltlbvs.Remove(ql);
                 _db.SaveChanges();
                 return Ok(new { result = true, message = "Xoá quản lý thể loại bài viết thành công" });
             }

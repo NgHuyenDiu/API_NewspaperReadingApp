@@ -39,7 +39,7 @@ namespace api_test.Controllers
                 art.Image = data.Rows[i]["image"].ToString();
                 art.Views = Int32.Parse(data.Rows[i]["views"].ToString());
                 art.TrangThaiXoa = Int32.Parse(data.Rows[i]["trangThaiXoa"].ToString());
-
+                
                 list.Add(art);
             }
             return Ok(new { result = true, data = list });
@@ -121,14 +121,15 @@ namespace api_test.Controllers
 
         [HttpPost]
         [Route ("create")]
-        [Authorize]
+       [Authorize]
         public IActionResult create(ArticlesModel model)
         {
             var useTemp = _db.Users.SingleOrDefault(user => user.IdUser == model.IdUser && user.Role == 1);
             if (useTemp != null)
             {
                 Article art = new Article();
-                art.IdArticles = ArticlesDAO.taoMa();
+                int ma = ArticlesDAO.taoMa();
+                art.IdArticles = ma;
                 art.Title = model.Title;
                 art.ContentArticles = model.ContentArticles;
                 art.IdUser = model.IdUser;
@@ -137,11 +138,24 @@ namespace api_test.Controllers
                 art.Views = 0;
                 art.TrangThaiXoa = 0;
                 _db.Articles.Add(art);
+
+                for(int i=0; i< model.listCategory.Count; i++)
+                {
+                    Qltlbv ql = new Qltlbv();
+                    ql.IdQl = QLTLBVDAO.taoMa();
+                    ql.IdArticles = ma;
+                    ql.IdCategory = model.listCategory[i];
+                    _db.Qltlbvs.Add(ql);
+                    _db.SaveChanges();
+                }
+               
                 _db.SaveChanges();
                 return Ok(new { result = true, message = "Thêm bài viết thành công" });
             }
             return Ok(new { result = false, message = "User không phải tác giả" });
         }
+
+       
 
 
         [HttpDelete]
@@ -174,6 +188,8 @@ namespace api_test.Controllers
 
         }
 
+      
+
         [HttpPut("Edit/{id}")]
         [Authorize]
         public IActionResult edit(int id, ArticlesModelEdit model)
@@ -196,7 +212,37 @@ namespace api_test.Controllers
                 art.ContentArticles = model.ContentArticles;
                 art.Status = model.Status;
                 art.Image = model.Image;
-                
+
+                // delete all QLTLBV of articles
+                var data = ArticlesDAO.get_QLTLBV_of_Articles(id);
+                List<Qltlbv> list = new List<Qltlbv>();
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    Qltlbv ql = new Qltlbv();
+                    ql.IdQl = int.Parse(data.Rows[i]["id_QL"].ToString());
+                    ql.IdArticles = int.Parse(data.Rows[i]["id_articles"].ToString());
+                    ql.IdCategory = int.Parse(data.Rows[i]["id_category"].ToString());
+                    list.Add(ql);
+                }
+
+                foreach (Qltlbv ql in list)
+                {
+                    _db.Qltlbvs.Remove(ql);
+                    _db.SaveChanges();
+                }
+
+               
+
+                for (int i = 0; i < model.listCategory.Count; i++)
+                {
+                    Qltlbv ql = new Qltlbv();
+                    ql.IdQl = QLTLBVDAO.taoMa();
+                    ql.IdArticles = id;
+                    ql.IdCategory = model.listCategory[i];
+                    _db.Qltlbvs.Add(ql);
+                    _db.SaveChanges();
+                }
+
                 _db.SaveChanges();
                 return Ok(new { result = true, message = "Chỉnh sửa thông tin bài viết thành công" });
             }
@@ -205,6 +251,6 @@ namespace api_test.Controllers
                 return Ok(new { result = false, message = "Chỉnh sửa bài viết thất bại" });
             }
         }
-
+     
     }
 }

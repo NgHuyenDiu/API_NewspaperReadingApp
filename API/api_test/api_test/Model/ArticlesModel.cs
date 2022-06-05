@@ -12,6 +12,8 @@ namespace api_test.Model
         public int IdUser { get; set; }
         public string Status { get; set; }
         public string Image { get; set; }
+
+        public List<int> listCategory { get; set; }
     }
 
     public class ArticlesModelEdit
@@ -21,5 +23,7 @@ namespace api_test.Model
       
         public string Status { get; set; }
         public string Image { get; set; }
+
+        public List<int> listCategory { get; set; }
     }
 }
