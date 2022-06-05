@@ -26,11 +26,12 @@ namespace api_test.Controllers
         public IActionResult getAll()
         {
             var data = ArticlesDAO.getAll();
-            List<Article> list = new List<Article>();
+            List<ArticlesModelView> list = new List<ArticlesModelView>();
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                Article art = new Article();
-                art.IdArticles = Int32.Parse(data.Rows[i]["id_articles"].ToString());
+                ArticlesModelView art = new ArticlesModelView();
+                int ma = Int32.Parse(data.Rows[i]["id_articles"].ToString());
+                art.IdArticles = ma;
                 art.Title = data.Rows[i]["title"].ToString();
                 art.ContentArticles = data.Rows[i]["content_articles"].ToString();
                 art.IdUser = Int32.Parse(data.Rows[i]["id_user"].ToString());
@@ -38,8 +39,25 @@ namespace api_test.Controllers
                 art.DateSubmitted = Convert.ToDateTime(data.Rows[i]["date_submitted"].ToString());
                 art.Image = data.Rows[i]["image"].ToString();
                 art.Views = Int32.Parse(data.Rows[i]["views"].ToString());
-                art.TrangThaiXoa = Int32.Parse(data.Rows[i]["trangThaiXoa"].ToString());
-                
+                art.listCategory = new List<int>();
+               var data1 = ArticlesDAO.get_QLTLBV_of_Articles(ma);
+                List<Qltlbv> list1 = new List<Qltlbv>();
+                for (int i1 = 0; i1 < data1.Rows.Count; i1++)
+                {
+                    Qltlbv ql = new Qltlbv();
+                    ql.IdQl = int.Parse(data1.Rows[i1]["id_QL"].ToString());
+                    ql.IdArticles = int.Parse(data1.Rows[i1]["id_articles"].ToString());
+                    ql.IdCategory = int.Parse(data1.Rows[i1]["id_category"].ToString());
+                    list1.Add(ql);
+
+                }
+
+                for (int j= 0; j<list1.Count; j++)
+                {
+                    int id_cate = int.Parse( list1[j].IdCategory.ToString());
+                    art.listCategory.Add(id_cate);
+                }
+
                 list.Add(art);
             }
             return Ok(new { result = true, data = list });
@@ -51,20 +69,38 @@ namespace api_test.Controllers
         public IActionResult getTopView()
         {
             var data = ArticlesDAO.getTopView();
-            List<Article> list = new List<Article>();
+            List<ArticlesModelView> list = new List<ArticlesModelView>();
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                Article art = new Article();
-                art.IdArticles = Int32.Parse(data.Rows[i]["id_articles"].ToString());
+                ArticlesModelView art = new ArticlesModelView();
+                int ma= Int32.Parse(data.Rows[i]["id_articles"].ToString());
+                art.IdArticles = ma;
                 art.Title = data.Rows[i]["title"].ToString();
                 art.ContentArticles = data.Rows[i]["content_articles"].ToString();
                 art.IdUser = Int32.Parse(data.Rows[i]["id_user"].ToString());
                 art.Status = data.Rows[i]["status"].ToString();
                 art.DateSubmitted = Convert.ToDateTime(data.Rows[i]["date_submitted"].ToString());
                 art.Image = data.Rows[i]["image"].ToString();
-                art.Views = Int32.Parse(data.Rows[i]["views"].ToString());
-                art.TrangThaiXoa = Int32.Parse(data.Rows[i]["trangThaiXoa"].ToString());
+                art.Views = Int32.Parse(data.Rows[i]["views"].ToString()); art.listCategory = new List<int>();
+                art.listCategory = new List<int>();
+                var data1 = ArticlesDAO.get_QLTLBV_of_Articles(ma);
 
+                List<Qltlbv> list1 = new List<Qltlbv>();
+                for (int i1 = 0; i1 < data1.Rows.Count; i1++)
+                {
+                    Qltlbv ql = new Qltlbv();
+                    ql.IdQl = int.Parse(data1.Rows[i1]["id_QL"].ToString());
+                    ql.IdArticles = int.Parse(data1.Rows[i1]["id_articles"].ToString());
+                    ql.IdCategory = int.Parse(data1.Rows[i1]["id_category"].ToString());
+                    list1.Add(ql);
+
+                }
+
+                for (int j = 0; j < list1.Count; j++)
+                {
+                    int id_cate = int.Parse(list1[j].IdCategory.ToString());
+                    art.listCategory.Add(id_cate);
+                }
                 list.Add(art);
             }
             return Ok(new { result = true, data = list });
@@ -82,9 +118,45 @@ namespace api_test.Controllers
                 {
                     return Ok(new { result = false, message = "Không tìm thấy bài viết" });
                 }
+                if(dt.TrangThaiXoa == 1)
+                {
+                    return Ok(new { result = false, message = "Bài viết đã bị xoá khỏi hệ thống" });
+                }
                 dt.Views = dt.Views + 1;
                 _db.SaveChanges();
-                return Ok(new { result = true, data = dt });
+
+               
+                ArticlesModelView art = new ArticlesModelView();
+
+                art.IdArticles = dt.IdArticles;
+                art.Title = dt.Title;
+                art.ContentArticles = dt.ContentArticles;
+                art.IdUser = dt.IdUser;
+                art.Status = dt.Status;
+                art.DateSubmitted = dt.DateSubmitted;
+                art.Image = dt.Image;
+                art.Views = dt.Views;
+                art.listCategory = new List<int>();
+                var data1 = ArticlesDAO.get_QLTLBV_of_Articles(id);
+
+                List<Qltlbv> list1 = new List<Qltlbv>();
+                for (int i1 = 0; i1 < data1.Rows.Count; i1++)
+                {
+                    Qltlbv ql = new Qltlbv();
+                    ql.IdQl = int.Parse(data1.Rows[i1]["id_QL"].ToString());
+                    ql.IdArticles = int.Parse(data1.Rows[i1]["id_articles"].ToString());
+                    ql.IdCategory = int.Parse(data1.Rows[i1]["id_category"].ToString());
+                    list1.Add(ql);
+
+                }
+
+                for (int j = 0; j < list1.Count; j++)
+                {
+                    int id_cate = int.Parse(list1[j].IdCategory.ToString());
+                    art.listCategory.Add(id_cate);
+                }
+
+                return Ok(new { result = true, data = art });
             }
             catch (Exception a)
             {
@@ -99,11 +171,12 @@ namespace api_test.Controllers
         public IActionResult getPageList(int page, int pagesize)
         {
             var data = ArticlesDAO.getPageList(page, pagesize);
-            List<Article> list = new List<Article>();
+            List<ArticlesModelView> list = new List<ArticlesModelView>();
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                Article art = new Article();
-                art.IdArticles = Int32.Parse(data.Rows[i]["id_articles"].ToString());
+                ArticlesModelView art = new ArticlesModelView();
+                int ma= Int32.Parse(data.Rows[i]["id_articles"].ToString());
+                art.IdArticles = ma;
                 art.Title = data.Rows[i]["title"].ToString();
                 art.ContentArticles = data.Rows[i]["content_articles"].ToString();
                 art.IdUser = Int32.Parse(data.Rows[i]["id_user"].ToString());
@@ -111,7 +184,25 @@ namespace api_test.Controllers
                 art.DateSubmitted = Convert.ToDateTime(data.Rows[i]["date_submitted"].ToString());
                 art.Image = data.Rows[i]["image"].ToString();
                 art.Views = Int32.Parse(data.Rows[i]["views"].ToString());
-                art.TrangThaiXoa = Int32.Parse(data.Rows[i]["trangThaiXoa"].ToString());
+                art.listCategory = new List<int>();
+                var data1 = ArticlesDAO.get_QLTLBV_of_Articles(ma);
+
+                List<Qltlbv> list1 = new List<Qltlbv>();
+                for (int i1 = 0; i1 < data1.Rows.Count; i1++)
+                {
+                    Qltlbv ql = new Qltlbv();
+                    ql.IdQl = int.Parse(data1.Rows[i1]["id_QL"].ToString());
+                    ql.IdArticles = int.Parse(data1.Rows[i1]["id_articles"].ToString());
+                    ql.IdCategory = int.Parse(data1.Rows[i1]["id_category"].ToString());
+                    list1.Add(ql);
+
+                }
+
+                for (int j = 0; j < list1.Count; j++)
+                {
+                    int id_cate = int.Parse(list1[j].IdCategory.ToString());
+                    art.listCategory.Add(id_cate);
+                }
 
                 list.Add(art);
             }
@@ -232,7 +323,7 @@ namespace api_test.Controllers
                 }
 
                
-
+                // add category into QLTLBV
                 for (int i = 0; i < model.listCategory.Count; i++)
                 {
                     Qltlbv ql = new Qltlbv();
