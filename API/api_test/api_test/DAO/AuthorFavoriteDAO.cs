@@ -31,5 +31,25 @@ namespace api_test.DAO
             }
             return maxMa + 1;
         }
+
+        public static DataTable getCountNumber(int id_user)
+        {
+            String lenh = String.Format("EXEC countNumberfavourite {0}", id_user);
+            DataTable dt = new DataTable();
+            SqlConnection cn = new SqlConnection(SqlHelper.connstr);
+            try
+            {
+                SqlCommand cmd = new SqlCommand(lenh, cn);
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            cn.Close();
+            return dt;
+        }
+
     }
 }

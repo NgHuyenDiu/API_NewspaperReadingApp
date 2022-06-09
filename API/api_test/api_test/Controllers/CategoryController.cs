@@ -26,7 +26,29 @@ namespace api_test.Controllers
        
         public IActionResult getAll()
         {
-            return Ok(new { result = true, data = _db.Categories });
+            var data = CategoryDAO.getAll();
+            List<CategoryView> list = new List<CategoryView>();
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                CategoryView cmt = new CategoryView();
+                int id_category = Int32.Parse(data.Rows[i]["id_category"].ToString());
+                cmt.IdCategory = id_category;     
+                cmt.Title= data.Rows[i]["title"].ToString();
+
+
+                var data1 = CategoryDAO.getListIDArticles(id_category);
+                List<IDArticles> list1 = new List<IDArticles>();
+                for (int i1 = 0; i1 < data1.Rows.Count; i1++)
+                {
+                    IDArticles id = new IDArticles();
+                    id.IdArticles = Int32.Parse(data1.Rows[i1]["id"].ToString());
+                    list1.Add(id);
+                }
+
+                cmt.listIDArticles = list1;
+                list.Add(cmt);
+            }
+            return Ok(new { result = true, data = list });
         }
 
         [HttpPost]

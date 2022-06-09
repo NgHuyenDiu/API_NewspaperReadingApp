@@ -39,5 +39,12 @@ namespace api_test.Model
         public int? Views { get; set; }
 
         public List<int> listCategory { get; set; }
+
+        public UserView user { get; set; }
+    }
+
+    public class IDArticles
+    {
+        public int IdArticles { get; set; }
     }
 }

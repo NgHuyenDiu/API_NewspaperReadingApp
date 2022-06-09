@@ -11,4 +11,12 @@ namespace api_test.Model
         public int IdUser { get; set; }
 
     }
+
+    public class HistoryDelete
+    {
+        public int IdUser { get; set; }
+        public int IdArticles { get; set; }
+       
+        public DateTime DatetimeSeen { get; set; }
+    }
 }

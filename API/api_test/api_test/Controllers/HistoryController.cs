@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 
 namespace api_test.Controllers
 {
@@ -21,7 +21,7 @@ namespace api_test.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         public IActionResult getAll()
         {
             return Ok(new { result = true, data= _db.Histories });
@@ -53,7 +53,7 @@ namespace api_test.Controllers
         // delete tat ca lich su nguoi dung
 
         [HttpDelete("deleteAllHistoryOfUser/{id}")]
-        [Authorize]
+        //[Authorize]
         public IActionResult deleteAll(int id)
         {
             try
@@ -71,12 +71,18 @@ namespace api_test.Controllers
         // delete lich su tu chon
        
         [HttpDelete("delete")]
-        [Authorize]
-        public IActionResult deleteHisByID(History his)
+        //[Authorize]
+        public IActionResult deleteHisByID(int id_articles, int id_user, DateTime date)
         {
             try
             {
-                HistoryDAO.deleteHistoryById(his.IdUser, his.IdArticles, his.DatetimeSeen);
+                var histo = _db.Histories.SingleOrDefault(histo => histo.IdArticles == id_articles && histo.IdUser == id_user && histo.DatetimeSeen == date);
+                if (histo != null)
+                {
+                    HistoryDAO.deleteHistoryById(histo.IdUser, histo.IdArticles, histo.DatetimeSeen);
+                }
+              
+               
                 return Ok(new { result = true, message = "Xoá lịch sử xem thành công" });
             }
             catch (Exception e)

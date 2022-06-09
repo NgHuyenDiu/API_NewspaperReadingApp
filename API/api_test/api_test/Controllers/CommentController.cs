@@ -28,17 +28,30 @@ namespace api_test.Controllers
         {
             var data = CommentDAO.getAll(id_articles);
             List<Comment> list = new List<Comment>();
+            List<UserView> listUserView = new List<UserView>();
             for (int i = 0; i < data.Rows.Count; i++)
             {
                 Comment cmt = new Comment();
                 cmt.IdComment = Int32.Parse(data.Rows[i]["id_comment"].ToString());
-                cmt.IdUser = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                int id = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                cmt.IdUser = id;
                 cmt.IdArticles = Int32.Parse(data.Rows[i]["id_articles"].ToString());
                 cmt.ContentComment = data.Rows[i]["content_comment"].ToString();
                 list.Add(cmt);
-                
+
+                var user = _db.Users.SingleOrDefault(user => user.IdUser == id);
+                UserView userView = new UserView();
+                userView.IdUser = user.IdUser;
+                userView.Name = user.Name;
+                userView.Phone = user.Phone;
+                userView.Email = user.Email;
+                userView.Avata = user.Avata;
+                userView.Gender = user.Gender;
+                userView.Username = user.Username;
+                userView.Role = user.Role;
+                listUserView.Add(userView);
             }
-            return Ok(new { result = true, data = list });
+            return Ok(new { result = true, data = list , listuser = listUserView });
         }
 
         [HttpGet("get/{id}")]
@@ -68,14 +81,14 @@ namespace api_test.Controllers
         [Authorize]
         public IActionResult Create(CommentModel model)
         {
-            Comment cat = new Comment();
-            cat.IdComment = CommentDAO.taoMa();
-            cat.IdUser = model.IdUser;
-            cat.IdArticles = model.IdArticles;
-            cat.ContentComment = model.ContentComment;
-            _db.Comments.Add(cat);
+            Comment com = new Comment();
+            com.IdComment = CommentDAO.taoMa();
+            com.IdUser = model.IdUser;
+            com.IdArticles = model.IdArticles;
+            com.ContentComment = model.ContentComment;
+            _db.Comments.Add(com);
             _db.SaveChanges();
-            return Ok(new { result = true, message = "Thêm bình luận thành công" });
+            return Ok(new { result = true, message = "Thêm bình luận thành công", comment = com });
         }
 
        

@@ -34,13 +34,30 @@ namespace api_test.Controllers
                 art.IdArticles = ma;
                 art.Title = data.Rows[i]["title"].ToString();
                 art.ContentArticles = data.Rows[i]["content_articles"].ToString();
-                art.IdUser = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                int id_user = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                art.IdUser = id_user;
                 art.Status= data.Rows[i]["status"].ToString();
                 art.DateSubmitted = Convert.ToDateTime(data.Rows[i]["date_submitted"].ToString());
                 art.Image = data.Rows[i]["image"].ToString();
                 art.Views = Int32.Parse(data.Rows[i]["views"].ToString());
+          
+                // get user
+                var user = _db.Users.SingleOrDefault(us => us.IdUser == id_user);
+                UserView usv = new UserView();
+                usv.IdUser = user.IdUser;
+                usv.Name = user.Name;
+                usv.Phone = user.Phone;
+                usv.Role = user.Role;
+                usv.Username = user.Username;
+                usv.Gender = user.Gender;
+                usv.Email = user.Email;
+                usv.Avata = user.Avata;
+
+                art.user = usv;
+
+                // get category of articles
                 art.listCategory = new List<int>();
-               var data1 = ArticlesDAO.get_QLTLBV_of_Articles(ma);
+                var data1 = ArticlesDAO.get_QLTLBV_of_Articles(ma);
                 List<Qltlbv> list1 = new List<Qltlbv>();
                 for (int i1 = 0; i1 < data1.Rows.Count; i1++)
                 {
@@ -77,14 +94,29 @@ namespace api_test.Controllers
                 art.IdArticles = ma;
                 art.Title = data.Rows[i]["title"].ToString();
                 art.ContentArticles = data.Rows[i]["content_articles"].ToString();
-                art.IdUser = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                int id_user = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                art.IdUser = id_user;
                 art.Status = data.Rows[i]["status"].ToString();
                 art.DateSubmitted = Convert.ToDateTime(data.Rows[i]["date_submitted"].ToString());
                 art.Image = data.Rows[i]["image"].ToString();
                 art.Views = Int32.Parse(data.Rows[i]["views"].ToString()); art.listCategory = new List<int>();
+
+                // get info user
+                var user = _db.Users.SingleOrDefault(us => us.IdUser == id_user);
+                UserView usv = new UserView();
+                usv.IdUser = user.IdUser;
+                usv.Name = user.Name;
+                usv.Phone = user.Phone;
+                usv.Role = user.Role;
+                usv.Username = user.Username;
+                usv.Gender = user.Gender;
+                usv.Email = user.Email;
+                usv.Avata = user.Avata;
+                art.user = usv;
+
+                // get category of articles
                 art.listCategory = new List<int>();
                 var data1 = ArticlesDAO.get_QLTLBV_of_Articles(ma);
-
                 List<Qltlbv> list1 = new List<Qltlbv>();
                 for (int i1 = 0; i1 < data1.Rows.Count; i1++)
                 {
@@ -131,11 +163,27 @@ namespace api_test.Controllers
                 art.IdArticles = dt.IdArticles;
                 art.Title = dt.Title;
                 art.ContentArticles = dt.ContentArticles;
-                art.IdUser = dt.IdUser;
+                int id_user = dt.IdUser;
+                art.IdUser = id_user;
                 art.Status = dt.Status;
                 art.DateSubmitted = dt.DateSubmitted;
                 art.Image = dt.Image;
                 art.Views = dt.Views;
+
+                // get info user
+                var user = _db.Users.SingleOrDefault(us => us.IdUser == id_user);
+                UserView usv = new UserView();
+                usv.IdUser = user.IdUser;
+                usv.Name = user.Name;
+                usv.Phone = user.Phone;
+                usv.Role = user.Role;
+                usv.Username = user.Username;
+                usv.Gender = user.Gender;
+                usv.Email = user.Email;
+                usv.Avata = user.Avata;
+                art.user = usv;
+
+                // get category 
                 art.listCategory = new List<int>();
                 var data1 = ArticlesDAO.get_QLTLBV_of_Articles(id);
 
@@ -179,14 +227,29 @@ namespace api_test.Controllers
                 art.IdArticles = ma;
                 art.Title = data.Rows[i]["title"].ToString();
                 art.ContentArticles = data.Rows[i]["content_articles"].ToString();
-                art.IdUser = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                int id_user = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                art.IdUser = id_user;
                 art.Status = data.Rows[i]["status"].ToString();
                 art.DateSubmitted = Convert.ToDateTime(data.Rows[i]["date_submitted"].ToString());
                 art.Image = data.Rows[i]["image"].ToString();
                 art.Views = Int32.Parse(data.Rows[i]["views"].ToString());
+
+                // get info user
+                var user = _db.Users.SingleOrDefault(us => us.IdUser == id_user);
+                UserView usv = new UserView();
+                usv.IdUser = user.IdUser;
+                usv.Name = user.Name;
+                usv.Phone = user.Phone;
+                usv.Role = user.Role;
+                usv.Username = user.Username;
+                usv.Gender = user.Gender;
+                usv.Email = user.Email;
+                usv.Avata = user.Avata;
+                art.user = usv;
+
+                // get category
                 art.listCategory = new List<int>();
                 var data1 = ArticlesDAO.get_QLTLBV_of_Articles(ma);
-
                 List<Qltlbv> list1 = new List<Qltlbv>();
                 for (int i1 = 0; i1 < data1.Rows.Count; i1++)
                 {

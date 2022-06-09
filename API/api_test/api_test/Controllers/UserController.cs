@@ -36,10 +36,10 @@ namespace api_test.Controllers
         public IActionResult getAll()
         {
             var data = UserDAO.getAll();
-            List<UserGet> list = new List<UserGet>();
+            List<UserView> list = new List<UserView>();
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                UserGet u = new UserGet();
+                UserView u = new UserView();
                 u.IdUser = Int32.Parse(data.Rows[i]["id_user"].ToString());
                 u.Name = data.Rows[i]["name"].ToString();
                 u.Gender = Int32.Parse(data.Rows[i]["gender"].ToString());
@@ -58,10 +58,10 @@ namespace api_test.Controllers
         public IActionResult getPageList(int page, int pagesize)
         {
             var data = UserDAO.getPageList(page, pagesize);
-            List<UserGet> list = new List<UserGet>();
+            List<UserView> list = new List<UserView>();
             for (int i = 0; i < data.Rows.Count; i++)
             {
-                UserGet u = new UserGet();
+                UserView u = new UserView();
                 u.IdUser = Int32.Parse(data.Rows[i]["id_user"].ToString());
                 u.Name = data.Rows[i]["name"].ToString();
                 u.Gender = Int32.Parse(data.Rows[i]["gender"].ToString());
@@ -125,6 +125,37 @@ namespace api_test.Controllers
                 userView.Gender = user.Gender;
                 userView.Username = user.Username;
                 userView.Role = user.Role;
+
+                // GET COUNT FAVOURITE 
+                var data = AuthorFavoriteDAO.getCountNumber(user.IdUser);
+                List<CountNumber> list = new List<CountNumber>();
+                for (int i = 0; i < data.Rows.Count; i++)
+                {
+                    CountNumber u = new CountNumber();
+                    u.number_of_authors_I_follow = Int32.Parse(data.Rows[i]["number_of_authors_I_follow"].ToString());    
+                    u.number_of_people_watching = Int32.Parse(data.Rows[i]["number_of_people_watching"].ToString()); 
+                    list.Add(u);
+                }
+
+                // GET LIST AUTHOR FAVOURITE
+
+                var data1 = UserDAO.getListAuthorFavorite(user.IdUser);
+                List<UserView> list1 = new List<UserView>();
+                for (int i = 0; i < data1.Rows.Count; i++)
+                {
+                    UserView u = new UserView();
+                    u.IdUser = Int32.Parse(data1.Rows[i]["id_user"].ToString());
+                    u.Name = data1.Rows[i]["name"].ToString();
+                    u.Gender = Int32.Parse(data1.Rows[i]["gender"].ToString());
+                    u.Phone = data1.Rows[i]["phone"].ToString();
+                    u.Email = data1.Rows[i]["email"].ToString();
+                    u.Avata = data1.Rows[i]["avata"].ToString();
+                    u.Username = data1.Rows[i]["username"].ToString();
+                    u.Role = Int32.Parse(data1.Rows[i]["role"].ToString());
+                    list1.Add(u);
+                }
+
+
                 var pass =  PasswordHelper.Decrypt(user.Password);
                 if(pass == model.Password)
                 {
@@ -134,7 +165,9 @@ namespace api_test.Controllers
                         Result = true,
                         Message = "Authenticate success",
                         DataToken = GenerateToken(user),
-                        DataUser = userView
+                        DataUser = userView,
+                        countFavourite = list,
+                        listAuthorFavourite = list1
                     });
                 }
                 else
@@ -296,7 +329,18 @@ namespace api_test.Controllers
                             user.Username = userEdit.Username;
 
                             _db.SaveChanges();
-                            return Ok(new { result = true, message = "Chỉnh sửa thông tin thành công" });
+
+                            var user1 = _db.Users.SingleOrDefault(user => user.IdUser == id);
+                            UserView userView = new UserView();
+                            userView.IdUser = user1.IdUser;
+                            userView.Name = user1.Name;
+                            userView.Phone = user1.Phone;
+                            userView.Email = user1.Email;
+                            userView.Avata = user1.Avata;
+                            userView.Gender = user1.Gender;
+                            userView.Username = user1.Username;
+                            userView.Role = user1.Role;
+                            return Ok(new { result = true, message = "Chỉnh sửa thông tin thành công", data = userView });
                         }
                         else
                         {

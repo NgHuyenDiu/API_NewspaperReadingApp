@@ -10,4 +10,12 @@ namespace api_test.Model
         
         public string Title { get; set; }
     }
+
+    public class CategoryView
+    {
+        public int IdCategory { get; set; }
+        public string Title { get; set; }
+
+        public List<IDArticles> listIDArticles { get; set; }
+    }
 }

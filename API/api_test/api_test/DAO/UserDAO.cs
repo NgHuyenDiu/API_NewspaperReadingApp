@@ -87,6 +87,26 @@ namespace api_test.DAO
             cn.Close();
             return dt;
         }
+
+        public static DataTable getListAuthorFavorite(int id_user)
+        {
+            String lenh = String.Format("EXEC list_author_favourite {0}", id_user);
+            DataTable dt = new DataTable();
+            SqlConnection cn = new SqlConnection(SqlHelper.connstr);
+            try
+            {
+                SqlCommand cmd = new SqlCommand(lenh, cn);
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                da.Fill(dt);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            cn.Close();
+            return dt;
+        }
+
     }
 }
 

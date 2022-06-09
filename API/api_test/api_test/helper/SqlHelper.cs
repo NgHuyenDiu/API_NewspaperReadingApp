@@ -9,7 +9,7 @@ namespace api_test.helper
         public static SqlConnection conn = new SqlConnection();
         public static String connstr;
         public static SqlDataReader myReader;
-        public static String servername = "DESKTOP-J64E1ON";
+        public static String servername = "HUYENDIU";
         public static String username = "";
         public static String mlogin = "sa";
         public static String password = "123";

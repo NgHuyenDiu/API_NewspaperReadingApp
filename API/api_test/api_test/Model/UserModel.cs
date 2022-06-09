@@ -44,16 +44,16 @@ namespace api_test.Model
         public int Role { get; set; }
     }
 
-    public class UserGet
+  /*  public class UserGet
     {
         [JsonProperty("user")]
-        public int IdUser { get; set; }
+       // public int IdUser { get; set; }
         public string Name { get; set; }
         public int? Gender { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
         public string Avata { get; set; }
         public string Username { get; set; }
-        public int Role { get; set; }
-    }
+        //public int Role { get; set; }
+    }*/
 }
