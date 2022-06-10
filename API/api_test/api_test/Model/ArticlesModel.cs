@@ -47,4 +47,6 @@ namespace api_test.Model
     {
         public int IdArticles { get; set; }
     }
+
+ 
 }

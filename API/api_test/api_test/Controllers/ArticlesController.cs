@@ -81,6 +81,125 @@ namespace api_test.Controllers
         }
 
         [HttpGet]
+        [Route ("search_by_title")]
+        public IActionResult search_by_title(String input)
+        {
+            var data = ArticlesDAO.search_by_title(input);
+            List<ArticlesModelView> list = new List<ArticlesModelView>();
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                ArticlesModelView art = new ArticlesModelView();
+                int ma = Int32.Parse(data.Rows[i]["id_articles"].ToString());
+                art.IdArticles = ma;
+                art.Title = data.Rows[i]["title"].ToString();
+                art.ContentArticles = data.Rows[i]["content_articles"].ToString();
+                int id_user = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                art.IdUser = id_user;
+                art.Status = data.Rows[i]["status"].ToString();
+                art.DateSubmitted = Convert.ToDateTime(data.Rows[i]["date_submitted"].ToString());
+                art.Image = data.Rows[i]["image"].ToString();
+                art.Views = Int32.Parse(data.Rows[i]["views"].ToString());
+
+                // get user
+                var user = _db.Users.SingleOrDefault(us => us.IdUser == id_user);
+                UserView usv = new UserView();
+                usv.IdUser = user.IdUser;
+                usv.Name = user.Name;
+                usv.Phone = user.Phone;
+                usv.Role = user.Role;
+                usv.Username = user.Username;
+                usv.Gender = user.Gender;
+                usv.Email = user.Email;
+                usv.Avata = user.Avata;
+
+                art.user = usv;
+
+                // get category of articles
+                art.listCategory = new List<int>();
+                var data1 = ArticlesDAO.get_QLTLBV_of_Articles(ma);
+                List<Qltlbv> list1 = new List<Qltlbv>();
+                for (int i1 = 0; i1 < data1.Rows.Count; i1++)
+                {
+                    Qltlbv ql = new Qltlbv();
+                    ql.IdQl = int.Parse(data1.Rows[i1]["id_QL"].ToString());
+                    ql.IdArticles = int.Parse(data1.Rows[i1]["id_articles"].ToString());
+                    ql.IdCategory = int.Parse(data1.Rows[i1]["id_category"].ToString());
+                    list1.Add(ql);
+
+                }
+
+                for (int j = 0; j < list1.Count; j++)
+                {
+                    int id_cate = int.Parse(list1[j].IdCategory.ToString());
+                    art.listCategory.Add(id_cate);
+                }
+
+                list.Add(art);
+            }
+            return Ok(new { result = true, data = list });
+        }
+
+        [HttpGet]
+        [Route("search_by_id_category")]
+        public IActionResult search_by_id_category(int id_category)
+        {
+            var data = ArticlesDAO.search_by_id_category(id_category);
+            List<ArticlesModelView> list = new List<ArticlesModelView>();
+            for (int i = 0; i < data.Rows.Count; i++)
+            {
+                ArticlesModelView art = new ArticlesModelView();
+                int ma = Int32.Parse(data.Rows[i]["id_articles"].ToString());
+                art.IdArticles = ma;
+                art.Title = data.Rows[i]["title"].ToString();
+                art.ContentArticles = data.Rows[i]["content_articles"].ToString();
+                int id_user = Int32.Parse(data.Rows[i]["id_user"].ToString());
+                art.IdUser = id_user;
+                art.Status = data.Rows[i]["status"].ToString();
+                art.DateSubmitted = Convert.ToDateTime(data.Rows[i]["date_submitted"].ToString());
+                art.Image = data.Rows[i]["image"].ToString();
+                art.Views = Int32.Parse(data.Rows[i]["views"].ToString());
+
+                // get user
+                var user = _db.Users.SingleOrDefault(us => us.IdUser == id_user);
+                UserView usv = new UserView();
+                usv.IdUser = user.IdUser;
+                usv.Name = user.Name;
+                usv.Phone = user.Phone;
+                usv.Role = user.Role;
+                usv.Username = user.Username;
+                usv.Gender = user.Gender;
+                usv.Email = user.Email;
+                usv.Avata = user.Avata;
+
+                art.user = usv;
+
+                // get category of articles
+                art.listCategory = new List<int>();
+                var data1 = ArticlesDAO.get_QLTLBV_of_Articles(ma);
+                List<Qltlbv> list1 = new List<Qltlbv>();
+                for (int i1 = 0; i1 < data1.Rows.Count; i1++)
+                {
+                    Qltlbv ql = new Qltlbv();
+                    ql.IdQl = int.Parse(data1.Rows[i1]["id_QL"].ToString());
+                    ql.IdArticles = int.Parse(data1.Rows[i1]["id_articles"].ToString());
+                    ql.IdCategory = int.Parse(data1.Rows[i1]["id_category"].ToString());
+                    list1.Add(ql);
+
+                }
+
+                for (int j = 0; j < list1.Count; j++)
+                {
+                    int id_cate = int.Parse(list1[j].IdCategory.ToString());
+                    art.listCategory.Add(id_cate);
+                }
+
+                list.Add(art);
+            }
+            return Ok(new { result = true, data = list });
+        }
+
+
+        [HttpGet]
         [Route("getTopView")]
        
         public IActionResult getTopView()

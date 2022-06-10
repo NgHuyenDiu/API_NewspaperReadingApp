@@ -24,7 +24,7 @@ namespace api_test.Controllers
 
         [HttpGet]
        
-        public IActionResult getAll()
+        public IActionResult getAllCate()
         {
             var data = CategoryDAO.getAll();
             List<CategoryView> list = new List<CategoryView>();
