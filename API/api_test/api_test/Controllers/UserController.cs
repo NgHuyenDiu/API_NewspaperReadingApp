@@ -401,6 +401,45 @@ namespace api_test.Controllers
         }
 
 
+        // thay đổi role user
+        [HttpPut("EditRole")]
+        [Authorize]
+        public IActionResult editRole(int id_admin, int id_user, int role)
+        {
+            try
+            {
+                // linkQ[Object] query
+
+                var user_admin = _db.Users.SingleOrDefault(user => user.IdUser == id_admin && user.Role == 0);
+                if (user_admin == null)
+                {
+                    return Ok(new { result = false, message = "Không tìm thấy user hoặc user không có quyền chỉnh sửa" });
+                }
+                else
+                {
+                    var user = _db.Users.SingleOrDefault(user => user.IdUser == id_user );
+                    if (user == null)
+                    {
+                        return Ok(new { result = false, message = "Không tìm thấy user" });
+                    }
+                    else
+                    {
+                        user.Role = role;
+                        _db.SaveChanges();
+                        return Ok(new { result = true, message = "Chỉnh sửa quyền người dùng thành công" });
+                    }
+                 
+                   
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { result = false, message = ex.Message });
+            }
+        }
+
+
         // khoá tài khoản
         [HttpDelete("LockAccount/{id}")]
         [Authorize]
